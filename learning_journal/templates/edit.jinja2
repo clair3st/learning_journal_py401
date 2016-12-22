@@ -1,0 +1,21 @@
+ {% extends "layout.jinja2" %}
+  {% block body %}
+<div class="container">
+
+      <div class="starter-template">
+        <h1>Learning Journal Entry</h1>
+      </div>
+
+    </div><!-- /.container -->
+
+    <section class="form">
+        <form>
+          <div class="form-group">
+            <h2>Title</h2>
+            <input type="text" class="form-control" name="title" value="{{ entries.title }}">
+            <h2>Entry</h2>
+            <textarea name="entry" class="form-control" rows="10" placeholder="Entry">{{ entries.body }}</textarea>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+{% endblock %}

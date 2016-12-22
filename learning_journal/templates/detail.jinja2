@@ -1,0 +1,12 @@
+{% extends "layout.jinja2" %}
+{% block body %}
+<section>
+<article>
+    <h2 class="entrytitle">{{ entries.title }}</h2>
+    <p class="date">{{ entries.creation_date }}</p>
+    <p class="entry">{{entries.body}}</p>
+    <a class="btn btn-primary" href="{{ request.route_url('edit', id=entries.id) }}">Edit</a>
+    <a class="btn btn-primary pull-right" href="{{ request.route_url('home') }}">Back</a>
+</article>
+</section>
+{% endblock %}   

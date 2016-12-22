@@ -1,0 +1,23 @@
+
+
+{% extends "layout.jinja2" %}
+{% block body %}
+    <div class="container">
+
+      <div class="starter-template">
+        <h1 class="pages-title">Learning Journal</h1>
+        <p class="lead">Claire Gatenby's learning journal submissions for Codefellows Python 401</p>
+      </div>
+
+    </div><!-- /.container -->
+    {% for item in entries %}
+    <section>
+      <article>
+        <h2 class="entrytitle">
+          <a href="{{ request.route_url('detail', id=item.id) }}">{{ item.title }}</a>
+        </h2>
+          <p class="date">{{ item.creation_date }}</p>
+      </article>
+    </section>
+    {% endfor %}
+{% endblock %}

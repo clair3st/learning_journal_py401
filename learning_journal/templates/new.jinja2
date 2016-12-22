@@ -1,0 +1,23 @@
+  {% extends "layout.jinja2" %}
+  {% block body %}
+    <div class="container">
+
+      <div class="starter-template">
+        <h1>Learning Journal Entry</h1>
+      </div>
+
+    </div><!-- /.container -->
+
+      <section class="form">
+        <form>
+          <div class="form-group">
+            <h2>Title</h2>
+            <input type="text" class="form-control" name="title" value="Entry Title">
+            <h2>What did you learn today...</h2>
+            <textarea name="entry" class="form-control">Type here!</textarea>
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </section>
+
+    {% endblock %}
