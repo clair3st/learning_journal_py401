@@ -6,8 +6,9 @@ from pyramid.view import view_config
 from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
-from datetime import datetime
+import datetime
 import os
+from pyramid.httpexceptions import HTTPFound
 
 HERE = os.path.dirname(__file__)
 
@@ -56,16 +57,14 @@ def edit_page(request):
 def new_entry(request):
     """View the new entry page."""
     try:
-        query = request.dbsession.query(MyModel)
-        all_entries = query.all()
         if request.method == "POST":
-            date = datetime.now()
             new_model = MyModel(title=request.POST['title'],
                                 body=request.POST['body'],
-                                creation_date="{}/{}/{}".format(date.month, date.day, date.year)
+                                creation_date=datetime.date.today()
                                 )
             request.dbsession.add(new_model)
-        return {'entries': all_entries}
+            return HTTPFound(location=request.route_url('home'))
+        return {}
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
 
