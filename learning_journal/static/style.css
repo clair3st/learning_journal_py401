@@ -1,0 +1,87 @@
+
+.starter-template {
+  padding: 40px 15px;
+  text-align: center;
+}
+
+body{
+  padding-top: 50px;
+  font-size: 100%;
+  color: #3c3c3c;
+  background-color: #fff;
+  font-family: 'Kameron', serif;
+  position: relative;
+  background-image:
+  linear-gradient(rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.3)), url('P7140158.JPG');
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-size: cover;
+}
+
+.lead {
+    color: #fff;
+}
+
+p, li {
+  font-size: 1.5em;
+  color: #3c3c3c;
+}
+
+h1{
+  font-size: 6em;
+  color: #B82601;
+  font-family: 'Sansita One', cursive;
+}
+
+h2{
+  font-size: 2.5em;
+  color: #B82601;
+  font-family: 'Sansita One', cursive;
+}
+
+article{
+  margin: 2.5%;
+}
+
+footer {
+  height: 2em;
+  padding: 1em;
+  text-align: right;
+  vertical-align: baseline;
+  color: #fff;
+  padding-bottom: 2%;
+}
+
+button{
+    margin-top: 2em;
+}
+
+.date {
+  font-weight: bold;
+}
+
+section {
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 2em;
+  margin: auto;
+  max-width: 60%;
+}
+
+
+
+
+/*LINK STYLES
+=======================================*/
+
+a, a:link, a:active {
+  text-decoration: none;
+  color: #062F4F;
+}
+
+a:hover, a:focus {
+  color: #B82601;
+}
+
+
+
