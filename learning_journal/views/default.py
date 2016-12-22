@@ -4,16 +4,32 @@ from pyramid.view import view_config
 from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
+import os
+
+HERE = os.path.dirname(__file__)
 
 
-@view_config(route_name='home', renderer='../templates/mytemplate.jinja2')
+@view_config(route_name='home', renderer='../templates/list.jinja2')
 def my_view(request):
+    """View for home page."""
     try:
         query = request.dbsession.query(MyModel)
-        one = query.filter(MyModel.name == 'one').first()
+        all_entries = query.all()
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
-    return {'one': one, 'project': 'learning_journal'}
+    return {'entries': all_entries}
+
+
+@view_config(route_name='detail', renderer='../templates/detail.jinja2')
+def detail(request):
+    """Send individual entry for detail view."""
+    query = request.dbsession.query(MyModel)
+    data = query.filter_by(id=request.matchdict['id']).one()
+    return {'entries': data}
+
+
+
+
 
 
 db_err_msg = """\
