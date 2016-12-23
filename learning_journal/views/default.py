@@ -10,8 +10,6 @@ import datetime
 import os
 from pyramid.httpexceptions import HTTPFound
 
-HERE = os.path.dirname(__file__)
-
 
 @view_config(route_name='home', renderer='../templates/list.jinja2')
 def home_page(request):
@@ -41,13 +39,12 @@ def edit_page(request):
     try:
         query = request.dbsession.query(MyModel)
         data = query.filter_by(id=request.matchdict['id']).one()
-        # if request.method == "POST":
+        if request.method == "POST":
 
-        #     new_title = request.POST["title"]
-        #     new_body = request.POST["body"]
-        #     new_model = MyModel(title=new_title, value=new_body)
-
-        #     request.dbsession.add(new_model)
+            data.title = request.POST["title"]
+            data.body = request.POST["body"]
+            request.dbsession.flush()
+            return HTTPFound(location=request.route_url('home'))
         return {'entries': data}
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
