@@ -111,11 +111,11 @@ def fill_the_db(testapp):
         dbsession.add_all(MODEL_ENTRIES)
 
 
-def test_home_route_has_no_article_when_db_empty(testapp):
-    """The home page has no articles."""
-    response = testapp.get('/', status=200)
-    html = response.html
-    assert len(html.find_all('article')) == 0
+# def test_home_route_has_no_article_when_db_empty(testapp):
+#     """The home page has no articles."""
+#     response = testapp.get('/', status=200)
+#     html = response.html
+#     assert len(html.find_all('article')) == 0
 
 
 def test_home_route_with_data_has_articles(testapp, fill_the_db):
