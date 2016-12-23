@@ -1,11 +1,14 @@
+"""Initialize the sql database."""
+
 import os
 import sys
 import transaction
+import datetime
 
 from pyramid.paster import (
     get_appsettings,
     setup_logging,
-    )
+)
 
 from pyramid.scripts.common import parse_vars
 
@@ -46,6 +49,33 @@ ENTRIES = [
      a website. I think initially I was a little freaked out by jinja when I
      did the reading but now that I've had the chance to practise and implement
      it in this site I feel like I'm starting to get the hang of it. """},
+
+    {"title": "Day 13",
+     "id": 3,
+     "creation_date": "Dec 21, 2016",
+     "body": """Today felt like a huge jump forward in what we've been learning
+      over the past few days. We learned about implementing a SQL database into
+      a pyramid framework to hold our data. I am still deciding if I like it
+      better to follow along with the coding in class or instead of typing
+      concentrate on understanding what is going on. I think I finally have my
+      file structure with my pyramid apps all in order, probably just in time
+      too! That was one of my biggest roadblocks today, understanding how all
+      the work we've been doing over the week would sit together and their
+      dependencies. """},
+
+    {"title": "Day 14",
+     "id": 4,
+     "creation_date": "Dec 22, 2016",
+     "body": """I was very thankful for a slightly slower pace today. Yesterday
+     everything felt so over my head trying to figure out the pyramid scaffold
+     and how all the seemingly separate parts connected together. Going through
+     it slower today and then walking through it with my partner this afternoon
+     has really helped me. I'm yet to start testing through, which at the
+     moment feels like a daunting task. I did manage to build on what I had
+     done yesterday and add the functionality to the edit and create new pages.
+     I'm looking forward to learn about postgres and how that will help with
+     our app persistence. I hope this is my last learning journal post on the
+     group site! """},
 ]
 
 
@@ -65,6 +95,8 @@ def main(argv=sys.argv):
     settings = get_appsettings(config_uri, options=options)
 
     engine = get_engine(settings)
+
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     session_factory = get_session_factory(engine)
@@ -73,5 +105,9 @@ def main(argv=sys.argv):
         dbsession = get_tm_session(session_factory, transaction.manager)
 
         for entry in ENTRIES:
-           row = MyModel(title=entry['title'], body=entry['body'], creation_date=entry['creation_date'])
-           dbsession.add(row)
+            row = MyModel(
+                title=entry['title'],
+                body=entry['body'],
+                creation_date=datetime.datetime.strptime(entry['creation_date'], '%b %d, %Y')
+            )
+            dbsession.add(row)
