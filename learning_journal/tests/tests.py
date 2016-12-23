@@ -9,6 +9,13 @@ from pyramid import testing
 from learning_journal.models import MyModel, get_tm_session
 from learning_journal.models.meta import Base
 from learning_journal.scripts.initializedb import ENTRIES
+import datetime
+
+MODEL_ENTRIES = [MyModel(
+    title=i['title'],
+    body=i['body'],
+    creation_date=datetime.datetime.strptime(i['creation_date'], '%b %d, %Y')
+) for i in ENTRIES]
 
 
 @pytest.fixture(scope="session")
@@ -49,23 +56,30 @@ def dummy_request(db_session):
 @pytest.fixture
 def add_models(dummy_request):
     """Add a bunch of model instances to the database."""
-    dummy_request.dbsession.add_all(ENTRIES)
+    for entry in ENTRIES:
+        row = MyModel(
+            title=entry['title'],
+            body=entry['body'],
+            creation_date=datetime.datetime.strptime(entry['creation_date'], '%b %d, %Y')
+        )
+
+        dummy_request.dbsession.add(row)
 
 
 # ======== UNIT TESTS ==========
 
-# def test_new_expenses_are_added(db_session):
-#     """New entries get added to the database."""
-#     db_session.add_all(ENTRIES)
-#     query = db_session.query(MyModel).all()
-#     assert len(query) == len(ENTRIES)
+def test_new_expenses_are_added(db_session):
+    """New entries get added to the database."""
+    db_session.add_all(MODEL_ENTRIES)
+    query = db_session.query(MyModel).all()
+    assert len(query) == len(MODEL_ENTRIES)
 
 
-def test_list_view_returns_empty_when_empty(dummy_request, add_models):
+def test_list_view_returns_length_with_entries(dummy_request, add_models):
     """Test that the home page returns no objects in the iterable."""
     from learning_journal.views.default import home_page
     result = home_page(dummy_request)
-    assert len(result['journal-entries']) == 0
+    assert len(result['entries']) == 4
 
 
 # from pyramid import testing
