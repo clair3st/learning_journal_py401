@@ -2,7 +2,7 @@
 
 
 import pytest
-# import transaction
+import transaction
 
 from pyramid import testing
 
@@ -60,7 +60,8 @@ def add_models(dummy_request):
         row = MyModel(
             title=entry['title'],
             body=entry['body'],
-            creation_date=datetime.datetime.strptime(entry['creation_date'], '%b %d, %Y')
+            creation_date=datetime.datetime.strptime(entry['creation_date'],
+                                                     '%b %d, %Y')
         )
 
         dummy_request.dbsession.add(row)
@@ -82,60 +83,50 @@ def test_list_view_returns_length_with_entries(dummy_request, add_models):
     assert len(result['entries']) == 4
 
 
-# from pyramid import testing
-# import pytest
+# ======== FUNCTIONAL TESTS ===========
 
 
-# @pytest.fixture
-# def req():
-#     """Fixture for a dummy request."""
-#     the_request = testing.DummyRequest()
-#     return the_request
+@pytest.fixture
+def testapp():
+    """Create a test db for functional tests."""
+    from webtest import TestApp
+    from learning_journal import main
+
+    app = main({}, **{"sqlalchemy.url": 'sqlite:///:memory:'})
+    testapp = TestApp(app)
+
+    SessionFactory = app.registry["dbsession_factory"]
+    engine = SessionFactory().bind
+    Base.metadata.create_all(bind=engine)
+
+    return testapp
 
 
-# @pytest.fixture()
-# def testapp():
-#     """Create an instance of our app for testing."""
-#     from ..scripts.initializedb import main
-#     app = main({})
-#     from webtest import TestApp
-#     return TestApp(app)
+@pytest.fixture
+def fill_the_db(testapp):
+    """Test fixture for a full db."""
+    SessionFactory = testapp.app.registry["dbsession_factory"]
+    with transaction.manager:
+        dbsession = get_tm_session(SessionFactory, transaction.manager)
+        dbsession.add_all(MODEL_ENTRIES)
 
 
-# def test_home_view(req):
-#     """Test that the home page returns what we expect."""
-#     from ..views.default import home_page
-#     info = home_page(req)
-#     assert "entries" in info
-
-
-# # functional testing here
-
-# def test_layout_root(testapp):
-#     """Test that the contents of the root page contains <article>."""
+# def test_home_route_has_no_article_when_db_empty(testapp):
+#     """The home page has no articles."""
 #     response = testapp.get('/', status=200)
 #     html = response.html
-#     assert "Claire's Learning Journal ~ Python 401" in html.find("footer").text
+#     assert len(html.find_all('article')) == 0
 
 
-# def test_root_contents(testapp):
-#     """Test that home contains as many <article> tags as journal entries."""
-#     from ..scripts.initializedb import ENTRIES
-#     response = testapp.get('/', status=200)
-#     html = response.html
-#     assert len(ENTRIES) == len(html.findAll("article"))
+def test_home_route_with_data_has_articles(testapp, fill_the_db):
+    """When there's data in the database, the home page has articles."""
+    response = testapp.get('/', status=200)
+    html = response.html
+    assert len(html.find_all("article")) == len(ENTRIES)
 
 
-# def test_new_layout(testapp):
-#     """Test that the contents of the root page contains <article>."""
-#     response = testapp.get('/journal/new-entry', status=200)
-#     html = response.html
-#     assert "Title" in html.find("h2").text
-
-
-# def test_detail_view():
-#     """Test that the detail page contains 'title'."""
-#     from .views import detail_page
-#     request = testing.DummyRequest()
-#     info = detail_page(request)
-#     assert "title" in info
+def test_new_route_has_form(testapp):
+    """The new entry page has no form."""
+    response = testapp.get('/journal/new-entry', status=200)
+    html = response.html
+    assert len(html.find_all('form')) == 1
