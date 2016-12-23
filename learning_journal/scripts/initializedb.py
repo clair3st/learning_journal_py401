@@ -110,4 +110,4 @@ def main(argv=sys.argv):
                 body=entry['body'],
                 creation_date=datetime.datetime.strptime(entry['creation_date'], '%b %d, %Y')
             )
-           dbsession.add(row)
+            dbsession.add(row)
