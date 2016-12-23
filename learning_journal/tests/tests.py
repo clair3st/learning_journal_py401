@@ -58,70 +58,52 @@ def test_new_layout(testapp):
 #     info = detail_page(request)
 #     assert "title" in info
 
-
-
-# import unittest
+# import pytest
 # import transaction
 
 # from pyramid import testing
 
+# from .models import Expense, get_tm_session
+# from .models.meta import Base
 
-# def dummy_request(dbsession):
-#     return testing.DummyRequest(dbsession=dbsession)
+# import faker
+# import random
+# import datetime
 
 
-# class BaseTest(unittest.TestCase):
-#     def setUp(self):
-#         self.config = testing.setUp(settings={
-#             'sqlalchemy.url': 'sqlite:///:memory:'
-#         })
-#         self.config.include('.models')
-#         settings = self.config.get_settings()
+# @pytest.fixture(scope="session")
+# def configuration(request):
+#     settings = {'sqlalchemy.url': 'sqlite:///:memory:'}
+#     config = testing.setUp(settings=settings)
+#     config.include('.models')
 
-#         from .models import (
-#             get_engine,
-#             get_session_factory,
-#             get_tm_session,
-#             )
-
-#         self.engine = get_engine(settings)
-#         session_factory = get_session_factory(self.engine)
-
-#         self.session = get_tm_session(session_factory, transaction.manager)
-
-#     def init_database(self):
-#         from .models.meta import Base
-#         Base.metadata.create_all(self.engine)
-
-#     def tearDown(self):
-#         from .models.meta import Base
-
+#     def teardown():
 #         testing.tearDown()
-#         transaction.abort()
-#         Base.metadata.drop_all(self.engine)
+
+#     request.addfinalizer(teardown)
+#     return config
 
 
-# class TestMyViewSuccessCondition(BaseTest):
+# @pytest.fixture()
+# def db_session(configuration, request):
+#     SessionFactory = configuration.registry['dbsession_factory']
+#     session = SessionFactory()
+#     engine = session.bind
+#     Base.metadata.create_all(engine)
 
-#     def setUp(self):
-#         super(TestMyViewSuccessCondition, self).setUp()
-#         self.init_database()
+#     def teardown():
+#         session.transaction.rollback()
 
-#         from .models import MyModel
-
-#         model = MyModel(name='one', value=55)
-#         self.session.add(model)
-
-#     def test_passing_view(self):
-#         from .views.default import my_view
-#         info = my_view(dummy_request(self.session))
-#         self.assertEqual(info['one'].name, 'one')
-#         self.assertEqual(info['project'], 'learning_journal')
+#     request.addfinalizer(teardown)
+#     return session
 
 
-# class TestMyViewFailureCondition(BaseTest):
+# @pytest.fixture
+# def dummy_request(db_session):
+#     return testing.DummyRequest(dbsession=db_session)
 
-#     def test_failing_view(self):
-#         from .views.default import my_view
-#         info = my_view(dummy_request(self.session))
-#         self.assertEqual(info.status_int, 500)
+
+# @pytest.fixture
+# def add_models(dummy_request):
+#     dummy_request.dbsession.add_all(EXPENSES)
+
