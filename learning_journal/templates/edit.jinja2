@@ -9,7 +9,7 @@
     </div><!-- /.container -->
 
     <section class="form">
-        <form action="{{ request.route_url('edit', id=entries.id) }}" method="POST">
+        <form method="POST">
           <div class="form-group">
             <h2>Title</h2>
             <input type="text" class="form-control" name="title" value="{{ entries.title }}">
