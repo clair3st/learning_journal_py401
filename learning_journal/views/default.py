@@ -7,7 +7,6 @@ from sqlalchemy.exc import DBAPIError
 
 from ..models import MyModel
 import datetime
-import os
 from pyramid.httpexceptions import HTTPFound
 
 
@@ -26,8 +25,7 @@ def home_page(request):
 def detail_page(request):
     """One entry for detail veiw."""
     try:
-        query = request.dbsession.query(MyModel)
-        data = query.filter_by(id=request.matchdict['id']).one()
+        data = request.dbsession.query(MyModel).get(request.matchdict['id'])
         return {'entries': data}
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
@@ -37,8 +35,7 @@ def detail_page(request):
 def edit_page(request):
     """Edit page for one entry."""
     try:
-        query = request.dbsession.query(MyModel)
-        data = query.filter_by(id=request.matchdict['id']).one()
+        data = request.dbsession.query(MyModel).get(request.matchdict['id'])
         if request.method == "POST":
 
             data.title = request.POST["title"]
@@ -64,7 +61,6 @@ def new_entry(request):
         return {}
     except DBAPIError:
         return Response(db_err_msg, content_type='text/plain', status=500)
-
 
 
 db_err_msg = """\
