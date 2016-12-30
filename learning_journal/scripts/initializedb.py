@@ -23,14 +23,14 @@ from ..models import MyModel
 ENTRIES = [
     {"title": "Day 11",
      "id": 1,
-     "body": """Today we learnt so many new things! First we
-     learned about web frameworks and in particular how to use Pyramid.
-     We went pretty quickly over this so I got a little lost in class but
-     doing it twice for both me and my partner's learning journal was great
-     practice. We also learned about deploying simple python apps to heroku.
+     "body": """Today we learnt so many new things! First we learned about web
+     frameworks and in particular how to use Pyramid. We went pretty quickly
+     over this so I got a little lost in class but doing it twice for
+     both me and my partner's learning journal was great practice. We
+     also learned about deploying simple python apps to heroku.
      I had a surprsing amount of difficulty with this. after a lot of
      frustration I realized t was a problem with my file tree setup.
-     Luckily I was able to get my site up and running.<br>
+     Luckily I was able to get my site up and running.
             I'm really enjoying the data structures at the moment.
      I feel like the more we do the easier it is for me to get
      my head around how they work and what they could be used for.
