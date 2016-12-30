@@ -1,5 +1,6 @@
 """Testing our journal app."""
 
+from pyramid.config import Configurator
 
 import pytest
 import transaction
@@ -12,16 +13,20 @@ from learning_journal.scripts.initializedb import ENTRIES
 import datetime
 
 MODEL_ENTRIES = [MyModel(
-    title=i['title'],
-    body=i['body'],
-    creation_date=datetime.datetime.strptime(i['creation_date'], '%b %d, %Y')
-) for i in ENTRIES]
+    title=entry['title'],
+    body=entry['body'],
+    creation_date=datetime.datetime.strptime(
+        entry['creation_date'], '%b %d, %Y'
+    )
+) for entry in ENTRIES]
 
 
 @pytest.fixture(scope="session")
 def configuration(request):
     """Set up a Configurator instance."""
-    settings = {'sqlalchemy.url': 'sqlite:///:memory:'}
+    settings = {
+        'sqlalchemy.url': 'postgres://clairegatenby@localhost:5432/test_lj'
+    }
     config = testing.setUp(settings=settings)
     config.include('learning_journal.models')
 
@@ -38,6 +43,7 @@ def db_session(configuration, request):
     SessionFactory = configuration.registry['dbsession_factory']
     session = SessionFactory()
     engine = session.bind
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
 
     def teardown():
@@ -69,7 +75,7 @@ def add_models(dummy_request):
 
 # ======== UNIT TESTS ==========
 
-def test_new_expenses_are_added(db_session):
+def test_new_entries_are_added(db_session):
     """New entries get added to the database."""
     db_session.add_all(MODEL_ENTRIES)
     query = db_session.query(MyModel).all()
@@ -85,14 +91,24 @@ def test_list_view_returns_length_with_entries(dummy_request, add_models):
 
 # ======== FUNCTIONAL TESTS ===========
 
-
 @pytest.fixture
 def testapp():
     """Create a test db for functional tests."""
     from webtest import TestApp
-    from learning_journal import main
+    # from learning_journal import main
 
-    app = main({}, **{"sqlalchemy.url": 'sqlite:///:memory:'})
+    def main(global_config, **settings):
+        """The function returns a Pyramid WSGI application."""
+        config = Configurator(settings=settings)
+        config.include('pyramid_jinja2')
+        config.include('learning_journal.models')
+        config.include('learning_journal.routes')
+        config.scan()
+        return config.make_wsgi_app()
+
+    app = main({}, **{
+        'sqlalchemy.url': 'postgres://clairegatenby@localhost:5432/test_lj'
+    })
     testapp = TestApp(app)
 
     SessionFactory = app.registry["dbsession_factory"]
@@ -111,11 +127,11 @@ def fill_the_db(testapp):
         dbsession.add_all(MODEL_ENTRIES)
 
 
-# def test_home_route_has_no_article_when_db_empty(testapp):
-#     """The home page has no articles."""
-#     response = testapp.get('/', status=200)
-#     html = response.html
-#     assert len(html.find_all('article')) == 0
+def test_home_route_has_no_article_when_db_empty(testapp):
+    """The home page has no articles."""
+    response = testapp.get('/', status=200)
+    html = response.html
+    assert len(html.find_all('article')) == 0
 
 
 def test_home_route_with_data_has_articles(testapp, fill_the_db):
