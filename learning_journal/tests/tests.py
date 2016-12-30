@@ -35,8 +35,8 @@ def configuration(request):
 @pytest.fixture()
 def db_session(configuration, request):
     """Create a session for interacting with the test database."""
-    SessionFactory = configuration.registry['dbsession_factory']
-    session = SessionFactory()
+    session_factory = configuration.registry['dbsession_factory']
+    session = session_factory()
     engine = session.bind
     Base.metadata.create_all(engine)
 
@@ -69,11 +69,27 @@ def add_models(dummy_request):
 
 # ======== UNIT TESTS ==========
 
-def test_new_expenses_are_added(db_session):
+def test_new_entries_are_added(db_session):
     """New entries get added to the database."""
     db_session.add_all(MODEL_ENTRIES)
     query = db_session.query(MyModel).all()
     assert len(query) == len(MODEL_ENTRIES)
+
+
+def test_create_new_entry_creates_new(db_session, dummy_request):
+    """Test when new entry is create the db is updated."""
+    from learning_journal.views.default import new_entry
+
+    dummy_request.method = "POST"
+    dummy_request.POST["title"] = "Learning Journal Title"
+    dummy_request.POST["body"] = "So many things learned today."
+
+    with pytest.raises(Exception):
+        new_entry(dummy_request)
+
+    query = db_session.query(MyModel).all()
+    assert query[0].title == "Learning Journal Title"
+    assert query[0].body == "So many things learned today."
 
 
 def test_list_view_returns_length_with_entries(dummy_request, add_models):
@@ -81,6 +97,40 @@ def test_list_view_returns_length_with_entries(dummy_request, add_models):
     from learning_journal.views.default import home_page
     result = home_page(dummy_request)
     assert len(result['entries']) == 4
+
+
+def test_detail_view_returns_entry(db_session, dummy_request, add_models):
+    """Test detail view returns entry."""
+    from learning_journal.views.default import detail_page
+    dummy_request.matchdict['id'] = 1
+    detail_page(dummy_request)
+    query = db_session.query(MyModel).all()
+    assert query[0].title == 'Day 11'
+
+
+def test_make_new_entry_then_edit(db_session, dummy_request):
+    """Test make new entry and edit page updates the db."""
+    from learning_journal.views.default import edit_page
+    from learning_journal.views.default import new_entry
+
+    dummy_request.method = "POST"
+    dummy_request.POST["title"] = "Learning Journal Title"
+    dummy_request.POST["body"] = "So many things learned today."
+
+    with pytest.raises(Exception):
+        new_entry(dummy_request)
+
+    dummy_request.method = "POST"
+    dummy_request.POST["title"] = "New Learning Journal Title"
+    dummy_request.POST["body"] = "So many NEW things learned today."
+    dummy_request.matchdict['id'] = 1
+
+    with pytest.raises(Exception):
+        edit_page(dummy_request)
+
+    query = db_session.query(MyModel).all()
+    assert query[0].title == "New Learning Journal Title"
+    assert query[0].body == "So many NEW things learned today."
 
 
 # ======== FUNCTIONAL TESTS ===========
@@ -95,8 +145,8 @@ def testapp():
     app = main({}, **{"sqlalchemy.url": 'sqlite:///:memory:'})
     testapp = TestApp(app)
 
-    SessionFactory = app.registry["dbsession_factory"]
-    engine = SessionFactory().bind
+    session_factory = app.registry["dbsession_factory"]
+    engine = session_factory().bind
     Base.metadata.create_all(bind=engine)
 
     return testapp
@@ -105,9 +155,9 @@ def testapp():
 @pytest.fixture
 def fill_the_db(testapp):
     """Test fixture for a full db."""
-    SessionFactory = testapp.app.registry["dbsession_factory"]
+    session_factory = testapp.app.registry["dbsession_factory"]
     with transaction.manager:
-        dbsession = get_tm_session(SessionFactory, transaction.manager)
+        dbsession = get_tm_session(session_factory, transaction.manager)
         dbsession.add_all(MODEL_ENTRIES)
 
 
@@ -130,3 +180,16 @@ def test_new_route_has_form(testapp):
     response = testapp.get('/journal/new-entry', status=200)
     html = response.html
     assert len(html.find_all('form')) == 1
+
+
+def test_create_view_post_redirects(testapp):
+    """Test that a post request redirects to home."""
+    post_params = {
+        'title': 'Learning Journal Title',
+        'body': 'So many things learned today.'
+    }
+
+    response = testapp.post('/journal/new-entry', post_params, status=302)
+    full_response = response.follow()
+
+    assert len(full_response.html.find_all(id="journal-entry")) == 1
