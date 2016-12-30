@@ -82,11 +82,61 @@ def test_new_entries_are_added(db_session):
     assert len(query) == len(MODEL_ENTRIES)
 
 
+def test_create_new_entry_creates_new(db_session, dummy_request):
+    """Test when new entry is create the db is updated."""
+    from learning_journal.views.default import new_entry
+
+    dummy_request.method = "POST"
+    dummy_request.POST["title"] = "Learning Journal Title"
+    dummy_request.POST["body"] = "So many things learned today."
+
+    with pytest.raises(Exception):
+        new_entry(dummy_request)
+
+    query = db_session.query(MyModel).all()
+    assert query[0].title == "Learning Journal Title"
+    assert query[0].body == "So many things learned today."
+
+
 def test_list_view_returns_length_with_entries(dummy_request, add_models):
     """Test that the home page returns no objects in the iterable."""
-    from .views.default import home_page
+    from learning_journal.views.default import home_page
     result = home_page(dummy_request)
     assert len(result['entries']) == 4
+
+
+def test_detail_view_returns_entry(db_session, dummy_request, add_models):
+    """Test detail view returns entry."""
+    from learning_journal.views.default import detail_page
+    dummy_request.matchdict['id'] = 1
+    detail_page(dummy_request)
+    query = db_session.query(MyModel).all()
+    assert query[0].title == 'Day 11'
+
+
+def test_make_new_entry_then_edit(db_session, dummy_request):
+    """Test make new entry and edit page updates the db."""
+    from learning_journal.views.default import edit_page
+    from learning_journal.views.default import new_entry
+
+    dummy_request.method = "POST"
+    dummy_request.POST["title"] = "Learning Journal Title"
+    dummy_request.POST["body"] = "So many things learned today."
+
+    with pytest.raises(Exception):
+        new_entry(dummy_request)
+
+    dummy_request.method = "POST"
+    dummy_request.POST["title"] = "New Learning Journal Title"
+    dummy_request.POST["body"] = "So many NEW things learned today."
+    dummy_request.matchdict['id'] = 1
+
+    with pytest.raises(Exception):
+        edit_page(dummy_request)
+
+    query = db_session.query(MyModel).all()
+    assert query[0].title == "New Learning Journal Title"
+    assert query[0].body == "So many NEW things learned today."
 
 
 # ======== FUNCTIONAL TESTS ===========
