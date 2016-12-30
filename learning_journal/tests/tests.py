@@ -158,7 +158,15 @@ def fill_the_db(testapp):
     session_factory = testapp.app.registry["dbsession_factory"]
     with transaction.manager:
         dbsession = get_tm_session(session_factory, transaction.manager)
-        dbsession.add_all(MODEL_ENTRIES)
+        for entry in ENTRIES:
+            row = MyModel(
+                title=entry['title'],
+                body=entry['body'],
+                creation_date=datetime.datetime.strptime(entry['creation_date'],
+                                                         '%b %d, %Y')
+            )
+
+            dbsession.add(row)
 
 
 def test_home_route_has_no_article_when_db_empty(testapp):
@@ -182,8 +190,19 @@ def test_new_route_has_form(testapp):
     assert len(html.find_all('form')) == 1
 
 
+def test_detail_page_loads_correct_entry(testapp, fill_the_db):
+    """Test that the detail route loads the proper entry."""
+    response = testapp.get('/journal/1', status=200)
+    title = response.html.find_all(class_='entrytitle')[0].contents[0]
+    assert title == ENTRIES[0]['title']
+
+
 def test_create_view_post_redirects(testapp):
-    """Test that a post request redirects to home."""
+    """Test that a post request redirects to home.
+
+    reference:
+    http://stackoverflow.com/questions/10773404/how-to-follow-pyramid-redirect-on-tests
+    """
     post_params = {
         'title': 'Learning Journal Title',
         'body': 'So many things learned today.'
@@ -193,3 +212,38 @@ def test_create_view_post_redirects(testapp):
     full_response = response.follow()
 
     assert len(full_response.html.find_all(id="journal-entry")) == 1
+
+
+def test_new_entry_adds_to_list(testapp):
+    """Test that new entry page adds to the list view."""
+    post_params = {
+        'title': 'Learning Journal Title',
+        'body': 'So many things learned today.'
+    }
+
+    response = testapp.post('/journal/new-entry', post_params, status=302)
+    full_response = response.follow()
+    assert full_response.html.find(id='journal-entry').a.text == post_params['title']
+
+
+def test_edit_page_redirects_to_home(testapp, fill_the_db):
+    """Test the edit page redirects to home after submit."""
+    post_params = {
+        'id': 1,
+        'title': 'Learning Journal Title',
+        'body': 'So many things learned today.'
+    }
+    response = testapp.post('/journal/1/edit-entry', post_params, status=302)
+    full_response = response.follow()
+
+    assert full_response.html.find_all(class_='entrytitle')[0].text[1:-1] == post_params['title']
+
+
+def test_edit_has_populated_form(testapp, fill_the_db):
+    """Test edit page has a pre-populated form."""
+    response = testapp.get('/journal/1/edit-entry', status=200)
+    title = response.html.form.input["value"]
+    body = response.html.form.textarea.contents[0]
+    print(body)
+    assert title == ENTRIES[0]["title"]
+    assert body == ENTRIES[0]["body"]
