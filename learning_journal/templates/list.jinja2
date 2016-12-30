@@ -12,7 +12,7 @@
     </div><!-- /.container -->
     {% for item in entries %}
     <section>
-      <article>
+      <article id="journal-entry">
         <h2 class="entrytitle">
           <a href="{{ request.route_url('detail', id=item.id) }}">{{ item.title }}</a>
         </h2>
