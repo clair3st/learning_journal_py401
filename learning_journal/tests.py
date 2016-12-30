@@ -163,6 +163,7 @@ def testapp():
 
     session_factory = app.registry["dbsession_factory"]
     engine = session_factory().bind
+    Base.metadata.drop_all(engine)
     Base.metadata.create_all(bind=engine)
 
     return testapp
@@ -178,8 +179,9 @@ def fill_the_db(testapp):
             row = MyModel(
                 title=entry['title'],
                 body=entry['body'],
-                creation_date=datetime.datetime.strptime(entry['creation_date'],
-                                                         '%b %d, %Y')
+                creation_date=datetime.datetime.strptime(
+                    entry['creation_date'], '%b %d, %Y'
+                )
             )
 
             dbsession.add(row)
@@ -252,14 +254,14 @@ def test_edit_page_redirects_to_home(testapp, fill_the_db):
     response = testapp.post('/journal/1/edit-entry', post_params, status=302)
     full_response = response.follow()
 
-    assert full_response.html.find_all(class_='entrytitle')[0].text[1:-1] == post_params['title']
+    assert full_response.html.find_all(class_='entrytitle')[-1].text[1:-1] == post_params['title']
 
 
 def test_edit_has_populated_form(testapp, fill_the_db):
     """Test edit page has a pre-populated form."""
     response = testapp.get('/journal/1/edit-entry', status=200)
-    title = response.html.form.input["value"]
+    title = response.html.form.input['value']
     body = response.html.form.textarea.contents[0]
     print(body)
-    assert title == ENTRIES[0]["title"]
-    assert body == ENTRIES[0]["body"]
+    assert title == ENTRIES[0]['title']
+    assert body == ENTRIES[0]['body']
