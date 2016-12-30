@@ -13,7 +13,7 @@
     {% for item in entries %}
     <section>
       <article>
-        <h2 class="entrytitle">
+        <h2 class="entrytitle" id='journal-entry'>
           <a href="{{ request.route_url('detail', id=item.id) }}">{{ item.title }}</a>
         </h2>
           <p class="date">{{ item.creation_date.strftime('%b %d, %Y') }}</p>
