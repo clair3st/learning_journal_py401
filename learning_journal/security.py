@@ -7,6 +7,8 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid.security import Authenticated, Allow, Everyone
 from passlib.apps import custom_app_context as pwd_context
 
+from pyramid.session import SignedCookieSessionFactory
+
 
 class NewRoot(object):
     """Takes in a http request and add access control route."""
@@ -41,3 +43,8 @@ def includeme(config):
     config.set_authorization_policy(authz_policy)
     config.set_default_permission('view')
     config.set_root_factory(NewRoot)
+    # CSRF Protection only for dangerous requests
+    session_secret = os.environ.get('SESSION_SECRET', 'itsaseekrit')
+    session_factory = SignedCookieSessionFactory(session_secret)
+    config.set_session_factory(session_factory)
+    config.set_defaul_csrf_options(require_csrf=True)
