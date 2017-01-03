@@ -10,7 +10,7 @@
       </div>
 
     </div><!-- /.container -->
-    {% for item in entries %}
+    {% for item in entries |sort(reverse=True, attribute='id')%}
     <section>
       <article>
         <h2 class="entrytitle" id='journal-entry'>
