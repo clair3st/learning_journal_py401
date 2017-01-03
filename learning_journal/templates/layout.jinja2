@@ -32,7 +32,9 @@
             <li><a href="{{ request.route_url('new') }}">Add New Entry</a></li>
             <li><a href="{{ request.route_url('logout') }}">Log Out</a></li>
             {% endif %}
+            {% if not request.authenticated_userid %}
             <li><a href="{{ request.route_url('login') }}">Log In</a></li>
+            {% endif %}
           </ul>
         </div><!--/.nav-collapse -->
       </div>
