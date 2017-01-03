@@ -10,6 +10,7 @@
 
     <section class="form">
         <form method="POST">
+          <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}" />
           <div class="form-group">
             <h2>Title</h2>
             <input type="text" class="form-control" name="title" value="{{ entries.title }}">
