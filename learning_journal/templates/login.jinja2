@@ -10,6 +10,7 @@
 
       <section class="form">
         <form  method="POST">
+          <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}" />
           <div class="form-group">
             {% if login %}
             <p>Sorry, incorrect username and/or password</p>
