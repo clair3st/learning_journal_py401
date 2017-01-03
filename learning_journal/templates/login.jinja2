@@ -1,0 +1,26 @@
+  {% extends "layout.jinja2" %}
+  {% block body %}
+    <div class="container">
+
+      <div class="starter-template">
+        <h1>Learning Journal Log In</h1>
+      </div>
+
+    </div><!-- /.container -->
+
+      <section class="form">
+        <form  method="POST">
+          <div class="form-group">
+            {% if login %}
+            <p>Sorry, incorrect username and/or password</p>
+            {% endif %}
+            <h2>Username</h2>
+            <input type="text" class="form-control" name="username">
+            <h2>Password</h2>
+            <input type="password" class="form-control" name="password">
+            <button type="submit" class="btn btn-primary">Submit</button>
+          </div>
+        </form>
+      </section>
+
+    {% endblock %}
