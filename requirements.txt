@@ -5,8 +5,10 @@ decorator==4.0.10
 ipython==5.1.0
 ipython-genutils==0.1.0
 Jinja2==2.8
+-e git+https://github.com/clair3st/learning_journal_py401@7cba448da344094a6520f2425a2dcaa3424949ee#egg=learning_journal
 Mako==1.0.6
 MarkupSafe==0.23
+passlib==1.7.0
 PasteDeploy==1.5.2
 pexpect==4.2.1
 pickleshare==0.7.4
