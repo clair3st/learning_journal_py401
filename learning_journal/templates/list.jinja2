@@ -1,7 +1,7 @@
 
 
 {% extends "layout.jinja2" %}
-{% block body %}
+  {% block body %}
     <div class="container">
 
       <div class="starter-template">
@@ -20,4 +20,8 @@
       </article>
     </section>
     {% endfor %}
+
+  {% block javascript %}
+    <script type="text/javascript" src="{{ request.static_url('learning_journal:static/app.js') }}"></script>
+  {% endblock %}
 {% endblock %}
