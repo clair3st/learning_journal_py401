@@ -65,7 +65,7 @@ def new_entry(request):
         return Response(db_err_msg, content_type='text/plain', status=500)
 
 
-@view_config(route_name='login', renderer='../templates/login.jinja2')
+@view_config(route_name='login', renderer='../templates/login.jinja2', require_csrf=False)
 def login_view(request):
     """Login page for user authentication."""
     if request.POST:
