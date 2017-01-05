@@ -1,20 +1,20 @@
 
-// $(document).ready(function(){
-//     // var deleters = $(".delete");
-//     // deleters.on("click", function(){
-//     //     // send ajax request to delete this expense
-//     //     $.ajax({
-//     //         url: 'delete/' + $(this).attr("data"),
-//     //         data: {
-//     //             "item": "some name",
-//     //             "paid_to": "some company"
-//     //         }
-//     //         success: function(){
-//     //             console.log("deleted");
-//     //         }
-//     //     });        
+$(document).ready(function(){
+    var form_submit = $("#create");
+    form_submit.on("click", function(){
+        console.log('in function')
+        $.ajax({
+            url: "/create-home",
+            data: {
+                "title": $("[name='title']").val(),
+                "body": $("[name='body']").val(),
+            },
+            success: function(){
+                console.log("updated");
+            }
+        });        
         
-//     // });
+    });
 
 //     var csrfToken = ${request.session.get_csrf_token()};
 //     $.ajax({
@@ -25,4 +25,4 @@
 //             alert("Ajaxed it");
 //         });
 
-// });
+});
