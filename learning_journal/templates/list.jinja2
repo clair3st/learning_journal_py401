@@ -1,7 +1,7 @@
 
 
 {% extends "layout.jinja2" %}
-{% block body %}
+  {% block body %}
     <div class="container">
 
       <div class="starter-template">
@@ -10,14 +10,37 @@
       </div>
 
     </div><!-- /.container -->
-    {% for item in entries |sort(reverse=True, attribute='id')%}
-    <section>
-      <article>
-        <h2 class="entrytitle" id='journal-entry'>
-          <a href="{{ request.route_url('detail', id=item.id) }}">{{ item.title }}</a>
-        </h2>
-          <p class="date">{{ item.creation_date.strftime('%b %d, %Y') }}</p>
-      </article>
-    </section>
-    {% endfor %}
+    {% if request.authenticated_userid %}
+      <section>
+        <form  method="POST">
+          <h2>Add a new entry below</h2>
+          <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}" />
+          <div class="form-group">
+            <h2 class="entrytitle">Title</h3>
+            <input type="text" class="form-control" name="title" value="Entry Title">
+            <h2 class="entrytitle">What did you learn today...</h3>
+            <textarea name="body" class="form-control" cols="73" rows="15">Type here!</textarea>
+            <button type="submit" class="btn btn-primary" id="create">Submit</button>
+          </div>
+        </form>
+      </section>
+      <article></article>
+
+    {% endif %}
+      <section>
+      <h2>Journal Entries</h2>
+      {% for item in entries |sort(reverse=True, attribute='creation_date')%}
+    
+        <article>
+          <h2 class="entrytitle" id='journal-entry'>
+            <a href="{{ request.route_url('detail', id=item.id) }}">{{ item.title }}</a>
+          </h2>
+            <p class="date">{{ item.creation_date.strftime('%b %d, %Y') }}</p>
+        </article>
+   
+      {% endfor %}
+      </section>
+  {% block javascript %}
+    <script type="text/javascript" src="{{ request.static_url('learning_journal:static/app.js') }}"></script>
+  {% endblock %}
 {% endblock %}

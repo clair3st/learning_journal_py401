@@ -3,11 +3,13 @@
 <section>
 <article>
     <h2 class="entrytitle">{{ entries.title }}</h2>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-text="{{ entries.title }}" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
     <p class="date">{{ entries.creation_date }}</p>
     <p class="entry">{{entries.body}}</p>
     <a class="btn btn-primary" href="{{ request.route_url('home') }}">Back</a>
     {% if request.authenticated_userid %}
     <a class="btn btn-primary pull-right" href="{{ request.route_url('edit', id=entries.id) }}">Edit</a>
+    <a class="btn btn-primary pull-right" href="{{ request.route_url('delete', id=entries.id) }}">Delete</a>
     {% endif %}
 </article>
 </section>

@@ -34,6 +34,7 @@ h1{
   font-family: 'Sansita One', cursive;
 }
 
+
 h2{
   font-size: 2.5em;
   color: #B82601;
@@ -81,6 +82,10 @@ a, a:link, a:active {
 
 a:hover, a:focus {
   color: #B82601;
+}
+
+.btn {
+  margin-right: 5px;
 }
 
 

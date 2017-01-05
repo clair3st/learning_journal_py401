@@ -33,7 +33,9 @@ def detail_page(request):
         return Response(db_err_msg, content_type='text/plain', status=500)
 
 
-@view_config(route_name='edit', renderer='../templates/edit.jinja2', permission='add')
+@view_config(route_name='edit',
+             renderer='../templates/edit.jinja2',
+             permission='add')
 def edit_page(request):
     """Edit page for one entry."""
     try:
@@ -49,7 +51,9 @@ def edit_page(request):
         return Response(db_err_msg, content_type='text/plain', status=500)
 
 
-@view_config(route_name='new', renderer='../templates/new.jinja2', permission='add')
+@view_config(route_name='new',
+             renderer='../templates/new.jinja2',
+             permission='add')
 def new_entry(request):
     """View the new entry page."""
     try:
@@ -65,7 +69,9 @@ def new_entry(request):
         return Response(db_err_msg, content_type='text/plain', status=500)
 
 
-@view_config(route_name='login', renderer='../templates/login.jinja2')
+@view_config(route_name='login',
+             renderer='../templates/login.jinja2',
+             require_csrf=False)
 def login_view(request):
     """Login page for user authentication."""
     if request.POST:
@@ -73,7 +79,8 @@ def login_view(request):
         password = request.POST['password']
         if check_credentials(username, password):
             auth_head = remember(request, username)
-            return HTTPFound(location=request.route_url('home'), headers=auth_head)
+            return HTTPFound(location=request.route_url('home'),
+                             headers=auth_head)
         else:
             return {'login': 'failed'}
     return {}
@@ -84,6 +91,25 @@ def logout_view(request):
     """Logout return to home."""
     auth_head = forget(request)
     return HTTPFound(location=request.route_url('home'), headers=auth_head)
+
+
+@view_config(route_name='create-home', permission="add")
+def add_new_ajax(request):
+    """To add new from home page."""
+    new_model = MyModel(title=request.GET['title'],
+                        body=request.GET['body'],
+                        creation_date=datetime.date.today()
+                        )
+    request.dbsession.add(new_model)
+    return HTTPFound(location=request.route_url('home'))
+
+
+@view_config(route_name="delete", permission="add")
+def delete_view(request):
+    """To delete individual items."""
+    entry = request.dbsession.query(MyModel).get(request.matchdict["id"])
+    request.dbsession.delete(entry)
+    return HTTPFound(request.route_url("home"))
 
 
 db_err_msg = """\
