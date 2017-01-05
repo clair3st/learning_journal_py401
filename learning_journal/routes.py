@@ -6,3 +6,5 @@ def includeme(config):
     config.add_route('edit', '/journal/{id:\d+}/edit-entry')
     config.add_route('login', '/journal/login')
     config.add_route('logout', '/journal/logout')
+    config.add_route('create-home', '/create-home')
+    config.add_route('delete', '/delete/{id:\d+}')
