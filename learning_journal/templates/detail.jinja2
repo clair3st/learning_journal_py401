@@ -3,6 +3,7 @@
 <section>
 <article>
     <h2 class="entrytitle">{{ entries.title }}</h2>
+    <a href="https://twitter.com/share" class="twitter-share-button" data-text="{{ entries.title }}" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
     <p class="date">{{ entries.creation_date }}</p>
     <p class="entry">{{entries.body}}</p>
     <a class="btn btn-primary" href="{{ request.route_url('home') }}">Back</a>
