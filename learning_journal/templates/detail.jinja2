@@ -9,6 +9,7 @@
     <a class="btn btn-primary" href="{{ request.route_url('home') }}">Back</a>
     {% if request.authenticated_userid %}
     <a class="btn btn-primary pull-right" href="{{ request.route_url('edit', id=entries.id) }}">Edit</a>
+    <a class="btn btn-primary pull-right" href="{{ request.route_url('delete', id=entries.id) }}">Delete</a>
     {% endif %}
 </article>
 </section>
