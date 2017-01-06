@@ -6,7 +6,7 @@ $(document).ready(function(){
 
         console.log('in function')
         $.ajax({
-            url: "/create-home",
+            url: "/journal/new-entry",
             headers: { 'X-CSRF-Token': csrfToken },
             data: {
                 "title": $("[name='title']").val(),
