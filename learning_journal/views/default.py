@@ -81,17 +81,6 @@ def logout_view(request):
     return HTTPFound(location=request.route_url('home'), headers=auth_head)
 
 
-@view_config(route_name='create-home', permission="add")
-def add_new_ajax(request):
-    """To add new from home page."""
-    new_model = MyModel(title=request.GET['title'],
-                        body=request.GET['body'],
-                        creation_date=datetime.date.today()
-                        )
-    request.dbsession.add(new_model)
-    return HTTPFound(location=request.route_url('home'))
-
-
 @view_config(route_name="delete", permission="add")
 def delete_view(request):
     """To delete individual items."""
