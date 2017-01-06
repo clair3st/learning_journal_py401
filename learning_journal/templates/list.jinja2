@@ -28,7 +28,7 @@
 
     {% endif %}
       <section>
-      <h2>Journal Entries</h2>
+      <h2 id="list-title">Journal Entries</h2>
       {% for item in entries |sort(reverse=True, attribute='creation_date')%}
     
         <article>
