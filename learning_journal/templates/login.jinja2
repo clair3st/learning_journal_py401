@@ -10,15 +10,14 @@
 
       <section class="form">
         <form  method="POST">
-{#           <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}" /> #}
           <div class="form-group">
             {% if login %}
             <p>Sorry, incorrect username and/or password</p>
             {% endif %}
             <h2>Username</h2>
-            <input type="text" class="form-control" name="username">
+            <input type="text" class="form-control" name="username" required>
             <h2>Password</h2>
-            <input type="password" class="form-control" name="password">
+            <input type="password" class="form-control" name="password" required>
             <button type="submit" class="btn btn-primary">Submit</button>
           </div>
         </form>
