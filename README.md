@@ -25,10 +25,13 @@ learning_journal/routes.py                     6      0   100%
 learning_journal/scripts/__init__.py           0      0   100%
 learning_journal/scripts/initializedb.py      30     18    40%   83-86, 90-113
 learning_journal/views/__init__.py             0      0   100%
-learning_journal/views/default.py             40      6    85%   20-21, 30-31, 47, 63
+learning_journal/views/default.py             28      0   100%
 learning_journal/views/notfound.py             4      2    50%   6-7
 ------------------------------------------------------------------------
-TOTAL                                        124     26    79%
+TOTAL                                        112     20    82%
+
+
+================================================================= 19 passed in 2.40 seconds 
 
 
 ---------- coverage: platform darwin, python 3.5.2-final-0 -----------
@@ -42,10 +45,12 @@ learning_journal/routes.py                     6      0   100%
 learning_journal/scripts/__init__.py           0      0   100%
 learning_journal/scripts/initializedb.py      30     18    40%   83-86, 90-113
 learning_journal/views/__init__.py             0      0   100%
-learning_journal/views/default.py             40      6    85%   20-21, 30-31, 47, 63
+learning_journal/views/default.py             28      0   100%
 learning_journal/views/notfound.py             4      2    50%   6-7
 ------------------------------------------------------------------------
-TOTAL                                        124     26    79%
-========================================== 13 passed in 2.09 seconds
+TOTAL                                        112     20    82%
+
+
+================================================================= 19 passed in 3.46 seconds =
 ```
 

@@ -24,6 +24,7 @@ def configuration(request):
     settings = {'sqlalchemy.url': 'sqlite:///:memory:'}
     config = testing.setUp(settings=settings)
     config.include('learning_journal.models')
+    config.include('learning_journal.routes')
 
     def teardown():
         testing.tearDown()
@@ -76,6 +77,12 @@ def test_new_entries_are_added(db_session):
     assert len(query) == len(MODEL_ENTRIES)
 
 
+def test_new_entry_returns_empty_dict(dummy_request):
+    """When I send a simple get request to new entry, I get emptiness."""
+    from learning_journal.views.default import new_entry
+    assert new_entry(dummy_request) == {}
+
+
 def test_create_new_entry_creates_new(db_session, dummy_request):
     """Test when new entry is create the db is updated."""
     from learning_journal.views.default import new_entry
@@ -84,8 +91,7 @@ def test_create_new_entry_creates_new(db_session, dummy_request):
     dummy_request.POST["title"] = "Learning Journal Title"
     dummy_request.POST["body"] = "So many things learned today."
 
-    with pytest.raises(Exception):
-        new_entry(dummy_request)
+    new_entry(dummy_request)
 
     query = db_session.query(MyModel).all()
     assert query[0].title == "Learning Journal Title"
@@ -117,16 +123,14 @@ def test_make_new_entry_then_edit(db_session, dummy_request):
     dummy_request.POST["title"] = "Learning Journal Title"
     dummy_request.POST["body"] = "So many things learned today."
 
-    with pytest.raises(Exception):
-        new_entry(dummy_request)
+    new_entry(dummy_request)
 
     dummy_request.method = "POST"
     dummy_request.POST["title"] = "New Learning Journal Title"
     dummy_request.POST["body"] = "So many NEW things learned today."
     dummy_request.matchdict['id'] = 1
 
-    with pytest.raises(Exception):
-        edit_page(dummy_request)
+    edit_page(dummy_request)
 
     query = db_session.query(MyModel).all()
     assert query[0].title == "New Learning Journal Title"
@@ -137,7 +141,7 @@ def test_make_new_entry_then_edit(db_session, dummy_request):
 
 
 @pytest.fixture
-def testapp():
+def testapp(scope='session'):
     """Create a test db for functional tests."""
     from webtest import TestApp
     from learning_journal import main
@@ -162,11 +166,13 @@ def fill_the_db(testapp):
             row = MyModel(
                 title=entry['title'],
                 body=entry['body'],
-                creation_date=datetime.datetime.strptime(entry['creation_date'],
-                                                         '%b %d, %Y')
+                creation_date=datetime.datetime.strptime(
+                    entry['creation_date'], '%b %d, %Y')
             )
 
             dbsession.add(row)
+
+    return dbsession
 
 
 def test_home_route_has_no_article_when_db_empty(testapp):
@@ -183,11 +189,23 @@ def test_home_route_with_data_has_articles(testapp, fill_the_db):
     assert len(html.find_all("article")) == len(ENTRIES)
 
 
-def test_new_route_has_form(testapp):
+def test_new_entry_route_has_form(testapp):
     """The new entry page has no form."""
     response = testapp.get('/journal/new-entry', status=200)
     html = response.html
     assert len(html.find_all('form')) == 1
+
+
+def test_detail_route_has_no_information(testapp):
+    """Test when no data there is a 404 error."""
+    response = testapp.get("/journal/1", status=404)
+    assert response.status_code == 404
+
+
+def test_detail_route_raises_404_for_incorrect_id(testapp):
+    """Test when id that doesn't exist, 404 response."""
+    response = testapp.get("/journal/12345", status=404)
+    assert response.status_code == 404
 
 
 def test_detail_page_loads_correct_entry(testapp, fill_the_db):
@@ -197,7 +215,7 @@ def test_detail_page_loads_correct_entry(testapp, fill_the_db):
     assert title == ENTRIES[0]['title']
 
 
-def test_create_view_post_redirects(testapp):
+def test_new_entry_post_redirects(testapp):
     """Test that a post request redirects to home.
 
     reference:
@@ -223,7 +241,20 @@ def test_new_entry_adds_to_list(testapp):
 
     response = testapp.post('/journal/new-entry', post_params, status=302)
     full_response = response.follow()
-    assert full_response.html.find(id='journal-entry').a.text == post_params['title']
+    title = full_response.html.find(id='journal-entry').a.text
+    assert title == post_params['title']
+
+
+def test_new_entry_is_in_db(testapp, fill_the_db):
+    """Test that new entry page adds to the list view."""
+    post_params = {
+        'title': 'Learning Journal Title',
+        'body': 'So many things learned today.'
+    }
+
+    testapp.post('/journal/new-entry', post_params, status=302)
+    query = fill_the_db.query(MyModel).all()
+    assert query[-1].title == post_params['title']
 
 
 def test_edit_page_redirects_to_home(testapp, fill_the_db):
@@ -235,8 +266,8 @@ def test_edit_page_redirects_to_home(testapp, fill_the_db):
     }
     response = testapp.post('/journal/1/edit-entry', post_params, status=302)
     full_response = response.follow()
-
-    assert full_response.html.find_all(class_='entrytitle')[0].text[1:-1] == post_params['title']
+    title = full_response.html.find_all(class_='entrytitle')[0].text[1:-1]
+    assert title == post_params['title']
 
 
 def test_edit_has_populated_form(testapp, fill_the_db):
@@ -247,3 +278,25 @@ def test_edit_has_populated_form(testapp, fill_the_db):
     print(body)
     assert title == ENTRIES[0]["title"]
     assert body == ENTRIES[0]["body"]
+
+
+def test_edited_is_in_db(testapp, fill_the_db):
+    """Test that edited entry is in the db."""
+    post_params = {
+        'title': 'Learning Journal Title',
+        'body': 'So many things learned today.'
+    }
+
+    testapp.post('/journal/1/edit-entry', post_params, status=302)
+    query = fill_the_db.query(MyModel).all()
+    assert query[0].title == post_params['title']
+
+
+def test_detail_view_only_has_one_article(testapp, fill_the_db):
+    """Test detail view only has one article."""
+    response = testapp.get("/journal/1")
+    num_items = fill_the_db.query(MyModel).filter_by(id=1).count()
+
+    html = response.html
+    article = html.find_all("article")
+    assert len(article) == num_items
