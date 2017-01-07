@@ -9,6 +9,8 @@ from pyramid.httpexceptions import HTTPFound
 from learning_journal.security import check_credentials
 from pyramid.security import remember, forget
 
+import json
+
 
 @view_config(route_name='home', renderer='../templates/list.jinja2')
 def home_page(request):
@@ -55,6 +57,14 @@ def new_entry(request):
         request.dbsession.add(new_model)
         return HTTPFound(location=request.route_url('home'))
     return {}
+
+
+@view_config(route_name='post_by_title', renderer='json')
+def entry_title(request):
+    """Get and entry by the title from the db."""
+    title = request.matchdict['title']
+    entry = request.dbsession.query(MyModel).filter_by(title=title).first()
+    return json.dumps({"title": entry.title, "id": entry.id})
 
 
 @view_config(route_name='login',
