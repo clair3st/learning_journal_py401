@@ -9,6 +9,8 @@ from pyramid.httpexceptions import HTTPFound
 from learning_journal.security import check_credentials
 from pyramid.security import remember, forget
 
+import json
+
 
 @view_config(route_name='home', renderer='../templates/list.jinja2')
 def home_page(request):
@@ -57,6 +59,14 @@ def new_entry(request):
     return {}
 
 
+@view_config(route_name='post_by_title', renderer='json')
+def entry_title(request):
+    """Get and entry by the title from the db."""
+    title = request.matchdict['title']
+    entry = request.dbsession.query(MyModel).filter_by(title=title).first()
+    return json.dumps({"title": entry.title, "id": entry.id})
+
+
 @view_config(route_name='login',
              renderer='../templates/login.jinja2',
              require_csrf=False)
@@ -79,17 +89,6 @@ def logout_view(request):
     """Logout return to home."""
     auth_head = forget(request)
     return HTTPFound(location=request.route_url('home'), headers=auth_head)
-
-
-@view_config(route_name='create-home', permission="add")
-def add_new_ajax(request):
-    """To add new from home page."""
-    new_model = MyModel(title=request.GET['title'],
-                        body=request.GET['body'],
-                        creation_date=datetime.date.today()
-                        )
-    request.dbsession.add(new_model)
-    return HTTPFound(location=request.route_url('home'))
 
 
 @view_config(route_name="delete", permission="add")
