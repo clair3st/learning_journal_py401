@@ -18,24 +18,35 @@ $(document).ready(function(){
             success: function(){
                 console.log("updated");
 
-                var num = $("article").length + 1;
-                var full_url = url_window + 'journal/' + num
+                var title = $("[name='title']").val();
+                var parsed_data = "";
 
-                // Render info to list
-                var heading = $('#list-title')
-                var title = $("[name='title']").val()
-                var text = '<article><h2 class="entrytitle" id="journal-entry"><a href="'
-                var text2 = '</a></h2><p class="date">'
-                var date = new Date()
-                var date = date.toDateString().slice(4)
-                var date_output = [date.slice(0, 6), ',', date.slice(6)].join('');
+                $.get( "/journal/" + title, function(data) {
+                    console.log( "Data Loaded: " + data );
+                    parsed_data = JSON.parse(data);
+                }).success(function(){
+                    
 
-                var text3 = '</p></article>'
-                heading.after(text + full_url + '">' + title + text2 + date_output + text3)
+                    var num = parsed_data['id'];
+                    var full_url = url_window + 'journal/' + num;
+                    console.log(full_url);
 
-                // Clear form
-                $("[name='title']").val('')
-                $("[name='body']").val('')
+                    // Render info to list
+                    var heading = $('#list-title')
+                    
+                    var text = '<article><h2 class="entrytitle" id="journal-entry"><a href="'
+                    var text2 = '</a></h2><p class="date">'
+                    var date = new Date()
+                    var date = date.toDateString().slice(4)
+                    var date_output = [date.slice(0, 6), ',', date.slice(6)].join('');
+
+                    var text3 = '</p></article>'
+                    heading.after(text + full_url + '">' + title + text2 + date_output + text3)
+
+                    // Clear form
+                    $("[name='title']").val('')
+                    $("[name='body']").val('')
+                });
 
             }
         
