@@ -12,3 +12,4 @@ def includeme(config):
     config.add_route('logout', '/journal/logout')
     config.add_route('post_by_title', '/journal/{title:[\w\s]+}')
     config.add_route('delete', '/delete/{id:\d+}')
+    config.add_route('api_list', '/api/entries')
