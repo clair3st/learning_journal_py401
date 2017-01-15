@@ -106,5 +106,5 @@ def delete_view(request):
 def api_list_view(request):
     """Return API list of journal entries."""
     entries = request.dbsession.query(MyModel).all()
-    output = [entry.to_json() for entry in entries]
-    return output
+    json_data = [entry.to_json() for entry in entries]
+    return json_data
