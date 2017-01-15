@@ -12,6 +12,7 @@ from .models import MyModel, get_tm_session
 from .models.meta import Base
 from .scripts.initializedb import ENTRIES
 import datetime
+import json
 
 MODEL_ENTRIES = [MyModel(
     title=entry['title'],
@@ -133,6 +134,17 @@ def test_create_view_returns_empty(dummy_request):
     assert new_entry(dummy_request) == {}
 
 
+def test_post_by_title(dummy_request, add_models):
+    """Test an entry in the db can be converted to json."""
+    from learning_journal.views.default import entry_title
+
+    dummy_request.matchdict['title'] = "Day 11"
+    dummy_request.matchdict['id'] = 1
+
+    to_return = entry_title(dummy_request)
+    assert to_return == json.dumps({"title": "Day 11", "id": 1})
+
+
 def test_edit_entry_edits_db(db_session, dummy_request, add_models):
     """Test when edit entry it updates db."""
     from learning_journal.views.default import edit_page
@@ -172,21 +184,6 @@ def test_make_new_entry_then_edit(db_session, dummy_request):
     assert query[0].body == "So many NEW things learned today."
 
 
-def test_create_new_ajax_entry_creates_new(db_session, dummy_request):
-    """Test when new entry is create the db is updated."""
-    from learning_journal.views.default import add_new_ajax
-
-    dummy_request.method = "GET"
-    dummy_request.GET["title"] = "Learning Journal Title"
-    dummy_request.GET["body"] = "So many things learned today."
-
-    add_new_ajax(dummy_request)
-
-    query = db_session.query(MyModel).all()
-    assert query[0].title == "Learning Journal Title"
-    assert query[0].body == "So many things learned today."
-
-
 def test_get_login_view_is_empty_dict(dummy_request):
     """Assert empty dict is returned, from Get request."""
     from learning_journal.views.default import login_view
@@ -205,6 +202,11 @@ def test_post_login_view_is_http_found(dummy_request, set_auth_credentials):
 
     assert isinstance(result, HTTPFound)
 
+
+def test_api_list_view(dummy_request, add_models):
+    """Test API view returns json list."""
+    from learning_journal.views.default import api_list_view
+    assert len(api_list_view(dummy_request)) == len(ENTRIES)
 
 # ======== FUNCTIONAL TESTS ===========
 
