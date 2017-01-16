@@ -4,6 +4,7 @@ import os
 import sys
 import transaction
 import datetime
+import requests
 
 from pyramid.paster import (
     get_appsettings,
@@ -84,6 +85,56 @@ def usage(argv):
     print('usage: %s <config_uri> [var=value]\n'
           '(example: "%s development.ini")' % (cmd, cmd))
     sys.exit(1)
+
+
+def get_old_entries():
+    """Access old entries from class site."""
+    api_key = os.environ["API_KEY"]
+    url = 'http://sea-python-401d5.herokuapp.com/api/export?apikey='
+    response = requests.get(url + api_key)
+    resp_json = response.json()
+    entries = [{
+        'creation_date': i['created'],
+        'title': i['title'],
+        'body': i['markdown']
+    } for i in resp_json]
+    return entries
+
+
+def add_old_entries():
+    """Add previous entries."""
+    entries = get_old_entries()
+    settings = {
+        "sqlalchemy.url": os.environ.get("DATABASE_URL", "postgres:///localhost:5432/learning-journal")
+    }
+
+    engine = get_engine(settings)
+
+    # Base.metadata.drop_all(engine)
+    Base.metadata.create_all(engine)
+
+    session_factory = get_session_factory(engine)
+
+    with transaction.manager:
+        dbsession = get_tm_session(session_factory, transaction.manager)
+
+        query = dbsession.query(MyModel).all()
+
+        titles = [q.title for q in query]
+
+        for entry in entries:
+            row = MyModel(
+                title=entry['title'],
+                body=entry['body'],
+                creation_date=datetime.datetime.strptime(entry['creation_date'][:-3], "%Y-%m-%dT%H:%M:%S.%f")
+            )
+            if entry['title'] not in titles:
+                dbsession.add(row)
+                titles.append(entry['title'])
+
+
+
+
 
 
 def main(argv=sys.argv):
