@@ -20,7 +20,8 @@ requires = [
     'ipython',
     'pyramid_ipython',
     'psycopg2',
-    'passlib'
+    'passlib',
+    'requests'
 ]
 
 tests_require = [
@@ -56,5 +57,6 @@ setup(name='learning_journal',
       main = learning_journal:main
       [console_scripts]
       initialize_db = learning_journal.scripts.initializedb:main
+      add_old_entries = learning_journal.scripts.initializedb:add_old_entries
       """,
       )
