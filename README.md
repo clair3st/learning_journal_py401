@@ -16,6 +16,14 @@ style.css has been prepared for the styling of each of the 4 pages using bootstr
 
 The learning journal is deployed on: https://clairegatenby-learning-journal.herokuapp.com/ utilizing Pyramid and journal entries are persisted using alchemySQL.
 
+###Class API:
+To update entries from the Python 401 class learning journal the API key must be set under API_KEY in your environmental variables.
+
+Next run command prompt `add_old_entries`.
+
+Only entries not present in the database will be added.
+
+
 
 ###Database:
 
