@@ -62,9 +62,12 @@ def new_entry(request):
 @view_config(route_name='post_by_title', renderer='json')
 def entry_title(request):
     """Get and entry by the title from the db."""
-    title = request.matchdict['title']
-    entry = request.dbsession.query(MyModel).filter_by(title=title).first()
-    return json.dumps({"title": entry.title, "id": entry.id})
+    try:
+        title = request.matchdict['title']
+        entry = request.dbsession.query(MyModel).filter_by(title=title).first()
+        return json.dumps({"title": entry.title, "id": entry.id})
+    except AttributeError:
+        return {}
 
 
 @view_config(route_name='login',
@@ -97,3 +100,11 @@ def delete_view(request):
     entry = request.dbsession.query(MyModel).get(request.matchdict["id"])
     request.dbsession.delete(entry)
     return HTTPFound(request.route_url("home"))
+
+
+@view_config(route_name="api_list", renderer="string")
+def api_list_view(request):
+    """Return API list of journal entries."""
+    entries = request.dbsession.query(MyModel).all()
+    json_data = [entry.to_json() for entry in entries]
+    return json_data

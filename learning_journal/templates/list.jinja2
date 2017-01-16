@@ -29,7 +29,7 @@
     {% endif %}
       <section>
       <h2 id="list-title">Journal Entries</h2>
-      {% for item in entries |sort(reverse=True, attribute='creation_date')%}
+      {% for item in entries |sort(reverse=True, attribute='id')%}
     
         <article>
           <h2 class="entrytitle" id='journal-entry'>

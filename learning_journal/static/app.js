@@ -2,7 +2,7 @@
 $(document).ready(function(){
     var csrfToken = $('input')[0].value;
     var form_submit = $("#create");
-    var url_window = window.location.href
+    var url_window = window.location.href;
 
     form_submit.on("click", function(e){
 

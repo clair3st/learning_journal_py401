@@ -23,5 +23,5 @@ class MyModel(Base):
             "id": self.id,
             "title": self.title,
             "body": self.body,
-            "creation_date": self.date.strftime('%b %d, %Y'),
+            "creation_date": self.creation_date.strftime('%b %d, %Y'),
         }
