@@ -131,10 +131,7 @@ def add_old_entries():
             if entry['title'] not in titles:
                 dbsession.add(row)
                 titles.append(entry['title'])
-
-
-
-
+                print('Added entry: ' + entry['title'])
 
 
 def main(argv=sys.argv):
